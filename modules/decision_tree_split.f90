@@ -2,7 +2,12 @@ module decision_tree_split
     use decision_tree_types
     implicit none
 contains
-
+    !> @brief データセットを特徴量と閾値を用いて分割する
+    !> @param[in] dataset データセット
+    !> @param[in] feature 特徴
+    !> @param[in] threshold 閾値
+    !> @param[out] left 左側のデータセット
+    !> @param[out] right 右側のデータセット
     subroutine splitDataset(dataset, feature, threshold, left, right)
         type(data_set), intent(in) :: dataset
         integer, intent(in) :: feature
@@ -11,19 +16,21 @@ contains
         integer :: left_count, right_count
         integer :: i
 
+        ! データセットの分割
         left_count = count(dataset%data(:, feature) < threshold)
         right_count = dataset%num_samples - left_count
+        !right_count = count(dataset%data(:, feature) >= threshold)
 
-        allocate(left%data(left_count, dataset%num_features))
+        ! 右側のデータセットのメモリ確保
+        allocate(left%data(left_count, NUM_FEATURES))
         allocate(left%labels(left_count))
         left%num_samples = left_count
-        left%num_features = dataset%num_features
 
-        allocate(right%data(right_count, dataset%num_features))
+        ! 右側のデータセットのメモリ確保
+        allocate(right%data(right_count, NUM_FEATURES))
         allocate(right%labels(right_count))
         right%num_samples = right_count
-        right%num_features = dataset%num_features
-
+        !カウント
         left_count = 0
         right_count = 0
 
