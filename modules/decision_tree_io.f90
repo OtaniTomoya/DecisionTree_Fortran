@@ -59,7 +59,6 @@ contains
         type(data_set), intent(out) :: train_data, test_data
         real, intent(in) :: train_ratio
         integer :: train_samples, test_samples
-        integer :: i
 
         train_samples = int(dataset%num_samples * train_ratio)
         test_samples = dataset%num_samples - train_samples

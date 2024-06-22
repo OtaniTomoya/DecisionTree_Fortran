@@ -1,54 +1,45 @@
-# Compiler
+# コンパイラ
 FC = gfortran
 
-# Compiler flags
-FFLAGS = -Wall -O2
+# コンパイルフラグ
+FFLAGS = -O2 -Wall
 
-# Modules
-MODULES = modules/decision_tree_types.o \
-          modules/decision_tree_utils.o \
-          modules/decision_tree_io.o \
-          modules/decision_tree_split.o \
-          modules/decision_tree_metrics.o \
-          modules/decision_tree_build.o
+# ターゲット実行ファイル名
+TARGET = main
 
-# Main program
-MAIN = main.o
+# モジュールディレクトリ
+MOD_DIR = modules
 
-# Output executable
-OUTPUT = decision_tree
+# ソースファイル
+MOD_SRC = $(MOD_DIR)/decision_tree_types.f90 $(MOD_DIR)/decision_tree_utils.f90 $(MOD_DIR)/decision_tree_split.f90 $(MOD_DIR)/decision_tree_metrics.f90 $(MOD_DIR)/decision_tree_build.f90 $(MOD_DIR)/decision_tree_io.f90
+MAIN_SRC = main.f90
 
-# Build all
-all: $(OUTPUT)
+# オブジェクトファイル
+MOD_OBJ = $(MOD_SRC:.f90=.o)
+MAIN_OBJ = $(MAIN_SRC:.f90=.o)
 
-# Link the main program with the modules
-$(OUTPUT): $(MODULES) $(MAIN)
-	$(FC) $(FFLAGS) -o $(OUTPUT) $(MODULES) $(MAIN)
+# ルール定義
+all: clean $(TARGET)
 
-# Compile main program
-main.o: main.f90
-	$(FC) $(FFLAGS) -c main.f90
+# ターゲットファイルの生成
+$(TARGET): $(MOD_OBJ) $(MAIN_OBJ)
+	$(FC) $(FFLAGS) -o $@ $(MOD_OBJ) $(MAIN_OBJ)
 
-# Compile modules with dependencies
-modules/decision_tree_types.o: modules/decision_tree_types.f90
-	$(FC) $(FFLAGS) -c modules/decision_tree_types.f90 -o modules/decision_tree_types.o
+# モジュールファイルのコンパイル
+$(MOD_DIR)/%.o: $(MOD_DIR)/%.f90
+	$(FC) $(FFLAGS) -c $< -o $@
 
-modules/decision_tree_utils.o: modules/decision_tree_utils.f90 modules/decision_tree_types.o
-	$(FC) $(FFLAGS) -c modules/decision_tree_utils.f90 -o modules/decision_tree_utils.o
+# メインファイルのコンパイル
+main.o: main.f90 $(MOD_OBJ)
+	$(FC) $(FFLAGS) -c main.f90 -o main.o
 
-modules/decision_tree_io.o: modules/decision_tree_io.f90 modules/decision_tree_types.o modules/decision_tree_utils.o
-	$(FC) $(FFLAGS) -c modules/decision_tree_io.f90 -o modules/decision_tree_io.o
-
-modules/decision_tree_split.o: modules/decision_tree_split.f90 modules/decision_tree_types.o modules/decision_tree_utils.o
-	$(FC) $(FFLAGS) -c modules/decision_tree_split.f90 -o modules/decision_tree_split.o
-
-modules/decision_tree_metrics.o: modules/decision_tree_metrics.f90 modules/decision_tree_types.o modules/decision_tree_utils.o
-	$(FC) $(FFLAGS) -c modules/decision_tree_metrics.f90 -o modules/decision_tree_metrics.o
-
-modules/decision_tree_build.o: modules/decision_tree_build.f90 modules/decision_tree_types.o modules/decision_tree_utils.o modules/decision_tree_split.o modules/decision_tree_metrics.o
-	$(FC) $(FFLAGS) -c modules/decision_tree_build.f90 -o modules/decision_tree_build.o
-
-# Clean up
+# クリーンアップ
 clean:
-	rm -f *.o *.mod $(OUTPUT)
-	rm -f modules/*.o modules/*.mod
+	rm -f $(MOD_OBJ) $(MAIN_OBJ) $(TARGET)
+	rm -f $(MOD_DIR)/*.mod
+
+# 実行
+run: $(TARGET)
+	./$(TARGET)
+
+.PHONY: all clean run
