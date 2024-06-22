@@ -32,3 +32,7 @@
 *.app
 
 *.csv
+
+/workspaces/DecisionTree_Fortran/.devcontainer
+/workspaces/DecisionTree_Fortran/Makefile
+.devcontainer/Dockerfile
