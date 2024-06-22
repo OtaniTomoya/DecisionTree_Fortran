@@ -2,7 +2,7 @@
 FC = gfortran
 
 # コンパイルフラグ
-FFLAGS = -O2 -Wall
+FFLAGS = -O1 -Wall
 
 # ターゲット実行ファイル名
 TARGET = main
