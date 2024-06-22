@@ -1,8 +1,8 @@
 # コンパイラ
-FC = gfortran
+FC = ifort
 
 # コンパイルフラグ
-FFLAGS = -O2 -Wall
+FFLAGS = -O3 -qopenmp -mkl=parallel -I$(MOD_DIR)
 
 # ターゲット実行ファイル名
 TARGET = main
