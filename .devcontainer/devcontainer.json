@@ -14,11 +14,8 @@
     },
     "extensions": [
     "oderwat.indent-rainbow",
-    "yzhang.markdown-all-in-one",
-    "yzane.markdown-pdf",
-    "shd101wyy.markdown-preview-enhanced",
-    "donjayamanne.python-extension-pack"
-    // "ms-toolsai.jupyter",
+    "fortran-lang.linter-gfortran",
+    "github.copilot"
     ]
     }
     }
