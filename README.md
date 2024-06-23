@@ -1,1 +1,5 @@
 # DecisionTree_Fortran
+
+WindowsとMacを行き来する関係で一部のファイルが追跡されないようになっています．
+
+settingbranchを参照してください
