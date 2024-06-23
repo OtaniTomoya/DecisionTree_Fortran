@@ -33,4 +33,7 @@
 
 *.csv
 
-*.PUB
+./Makefile
+.devcontainer/Dockerfile
+.devcontainer/devcontainer.json
+Makefile
