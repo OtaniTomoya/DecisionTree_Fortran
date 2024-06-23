@@ -33,6 +33,10 @@
 
 *.csv
 
-/workspaces/DecisionTree_Fortran/.devcontainer
-/workspaces/DecisionTree_Fortran/Makefile
+./Makefile
 .devcontainer/Dockerfile
+.devcontainer/devcontainer.json
+Makefile
+
+main
+./main
