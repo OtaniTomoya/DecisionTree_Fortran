@@ -12,11 +12,9 @@ contains
         integer :: unit = 10
         integer, allocatable :: data(:,:)
 
-
         nrows = NUM_SAMPLES
         ncols = NUM_FEATURES + 1 ! ラベルを含める
         allocate(data(nrows, ncols))
-
 
         open(unit=unit, file=filename, status='old', action='read', iostat=ios)
 
