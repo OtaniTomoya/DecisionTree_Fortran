@@ -19,7 +19,6 @@ program main
     real :: accuracy, start, finish , elapsed_time      ! 正解率を格納する変数  (realは浮動小数点数を表す)
     integer :: correct_predictions, i, prediction       ! 正解した予測の数を格納する変数, ループ用変数, 予測結果を格納する変数  (integerは整数を表す)
 ! メインプログラムの処理
-    call cpu_time(start)    ! プログラムの実行時間を計測
     ! データセットの読み込み
     print *, "csvの読み込み中..."
     call readCSV("mnist.csv", dataset)  ! callはサブルーチンを呼び出すときに使う datasetにcsvのデータが格納される
@@ -29,7 +28,7 @@ program main
     print *, "データの分割中..."
     call trainTestSplit(dataset, train_data, test_data, 0.7)
     print *, "データの分割完了!"
-
+    call cpu_time(start)
     ! 決定木の生成
     print *, "木の生成中..."
     tree => buildTree(train_data, 0)    !buildTreeは関数

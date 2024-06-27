@@ -2,7 +2,7 @@ module decision_tree_types
     implicit none
 
     integer, parameter :: NUM_FEATURES = 784
-    integer, parameter :: NUM_SAMPLES = 700
+    integer, parameter :: NUM_SAMPLES = 70000
     integer, parameter :: MAX_LABELS = 9
 
     type :: TreeNode

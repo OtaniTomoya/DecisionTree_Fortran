@@ -5,39 +5,31 @@ module decision_tree_build
     use decision_tree_metrics
     implicit none
 contains
-    ! recursive:再帰的な関数を定義
-    !> 決定木を構築する再帰関数
-    ! @param[in] dataset データセット
-    ! @param[in] depth 深さ
-    ! @return 決定木のノードを表す構造体
     recursive function buildTree(dataset, depth) result(node)
-    ! 変数を宣言
-        type(data_set), intent(in) :: dataset           ! データセット
-        integer, intent(in) :: depth                    ! 深さ
-        type(TreeNode), pointer :: node                 ! ノード
-        integer :: i, j, best_feature, best_threshold, threshold   ! ループ用の変数(i, j), 最良の特徴・閾値
-        real :: best_gain, gain, parent_impurity                         ! 最良の情報利得, 情報利得
-        type(data_set) :: left, right                   ! 左のデータセット, 右のデータセット
-        integer, dimension(255) :: unique_labels
-        real :: start_time, end_time, elapsed_time
-        if (dataset%num_samples == 0) then  ! データセットのサンプル数が0の場合
-            node => null()                  ! ノードをnullにする    ノードの初期値がnullなのでいらない．後で直す
+        type(data_set), intent(in) :: dataset
+        integer, intent(in) :: depth
+        type(TreeNode), pointer :: node
+        integer :: i, j, best_feature, best_threshold, threshold
+        real :: best_gain, gain, parent_impurity
+        type(data_set) :: left, right
+        integer, dimension(256) :: unique_labels
+        if (dataset%num_samples == 0) then
+            node => null()
             return
         end if
         unique_labels = -1
-        best_gain = 0.0 ! 最良の情報利得を初期化
+        best_gain = 0.0
+
         ! 最良の特徴量・閾値を探す
-            ! 特徴の列に存在する全ての値について閾値と仮定して情報利得を計算し，最良の情報利得を持つ特徴と閾値を見つけるのが本来の動作であるが，
-            ! 特徴量は0~255の間の自然数であるためこのようにしている
+        call get_unique_labels(dataset%labels, unique_labels)
         parent_impurity = giniImpurity(dataset%labels, dataset%num_samples)
-        do i = 1, NUM_FEATURES  ! 特徴の数だけループ
-            do j = 0, 255               ! 0から255までループ
+        do i = 1, NUM_FEATURES
+            do j = 0, 255
                 if (unique_labels(j) == -1) then
                     exit
                 end if
-                threshold = unique_labels(i)   ! 閾値を設定
-                gain = informationGain(dataset, i, threshold, parent_impurity)   ! 情報利得を計算 informationGainは(data, feature, threshold)を引数に取る関数
-                ! 最適な特徴と閾値を更新
+                threshold = unique_labels(j)
+                gain = informationGain(dataset, i, threshold, parent_impurity)
                 if (gain > best_gain) then
                     best_gain = gain
                     best_feature = i
@@ -45,20 +37,18 @@ contains
                 end if
             end do
         end do
+
         ! 最良の情報利得が0の場合，葉ノードとする
         if (best_gain == 0.0) then
             node => createNode(-1, 0, dataset%labels(1))
             return
         end if
-        ! 最適な特徴と閾値でデータセットを分割
+
         call splitDataset(dataset, best_feature, best_threshold, left, right)
-        ! このノードから見て左右のノードを再帰的に構築
+
         node => createNode(best_feature, best_threshold, -1)
         node%left => buildTree(left, depth + 1)
         node%right => buildTree(right, depth + 1)
-        print *, "Depth: ", depth, "Feature: ", best_feature, "Threshold: ", best_threshold, "Gain: ", best_gain
-        ! データセットを解放
-            ! この処理が実行される時は，葉ノードまで到達した時であることに注意
         deallocate(left%data)
         deallocate(left%labels)
         deallocate(right%data)
@@ -67,15 +57,16 @@ contains
 
     subroutine get_unique_labels(input_labels, output_labels)
         integer, dimension(:), intent(in) :: input_labels
-        integer, dimension(255),  intent(out) :: output_labels
+        integer, dimension(256), intent(out) :: output_labels
         integer :: i, j, count
         logical :: is_unique
 
-        count = 0
+        count = 1
+        output_labels = -1  ! 初期化
 
         ! 一時的な配列にユニークなラベルを保存
         do i = 1, size(input_labels)
-            if (count >= 255) then
+            if (count > 256) then
                 exit
             end if
             is_unique = .true.
@@ -86,23 +77,16 @@ contains
                 end if
             end do
             if (is_unique) then
-                count = count + 1
                 output_labels(count) = input_labels(i)
+                count = count + 1
             end if
         end do
-
-
     end subroutine get_unique_labels
 
-    !> 決定木を使ってサンプルを予測する再帰関数
-    ! @param[in] tree 決定木のノード
-    ! @param[in] sample サンプル
-    ! @return 予測されたラベル
     recursive function predict(tree, sample) result(label)
-        ! 変数を宣言
-        type(TreeNode), pointer :: tree     ! 決定木のノード
-        integer, intent(in) :: sample(:)    ! サンプル
-        integer :: label                    ! 予測されたラベル
+        type(TreeNode), pointer :: tree
+        integer, intent(in) :: sample(:)
+        integer :: label
 
         ! ノードが葉ノードの場合，ラベルを返す
         if (tree%feature == -1) then
@@ -112,9 +96,9 @@ contains
 
         ! 特徴と閾値に基づいて左右のノードを選択
         if (sample(tree%feature) < tree%threshold) then
-            label = predict(tree%left, sample)  ! 左のノードを選択
+            label = predict(tree%left, sample)
         else
-            label = predict(tree%right, sample) ! 右のノードを選択
+            label = predict(tree%right, sample)
         end if
     end function predict
 
