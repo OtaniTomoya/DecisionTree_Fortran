@@ -16,23 +16,27 @@ contains
         integer, intent(in) :: depth                    ! 深さ
         type(TreeNode), pointer :: node                 ! ノード
         integer :: i, j, best_feature, best_threshold, threshold   ! ループ用の変数(i, j), 最良の特徴・閾値
-        real :: best_gain, gain                         ! 最良の情報利得, 情報利得
+        real :: best_gain, gain, parent_impurity                         ! 最良の情報利得, 情報利得
         type(data_set) :: left, right                   ! 左のデータセット, 右のデータセット
-
+        integer, dimension(255) :: unique_labels
+        real :: start_time, end_time, elapsed_time
         if (dataset%num_samples == 0) then  ! データセットのサンプル数が0の場合
             node => null()                  ! ノードをnullにする    ノードの初期値がnullなのでいらない．後で直す
             return
         end if
-
+        unique_labels = -1
         best_gain = 0.0 ! 最良の情報利得を初期化
-
         ! 最良の特徴量・閾値を探す
             ! 特徴の列に存在する全ての値について閾値と仮定して情報利得を計算し，最良の情報利得を持つ特徴と閾値を見つけるのが本来の動作であるが，
             ! 特徴量は0~255の間の自然数であるためこのようにしている
+        parent_impurity = giniImpurity(dataset%labels, dataset%num_samples)
         do i = 1, NUM_FEATURES  ! 特徴の数だけループ
-            do j = 0, 25               ! 0から255までループ
-                threshold = j * 10   ! 閾値を設定
-                gain = informationGain(dataset, i, threshold)   ! 情報利得を計算 informationGainは(data, feature, threshold)を引数に取る関数
+            do j = 0, 255               ! 0から255までループ
+                if (unique_labels(j) == -1) then
+                    exit
+                end if
+                threshold = unique_labels(i)   ! 閾値を設定
+                gain = informationGain(dataset, i, threshold, parent_impurity)   ! 情報利得を計算 informationGainは(data, feature, threshold)を引数に取る関数
                 ! 最適な特徴と閾値を更新
                 if (gain > best_gain) then
                     best_gain = gain
@@ -41,16 +45,13 @@ contains
                 end if
             end do
         end do
-
         ! 最良の情報利得が0の場合，葉ノードとする
         if (best_gain == 0.0) then
             node => createNode(-1, 0, dataset%labels(1))
             return
         end if
-
         ! 最適な特徴と閾値でデータセットを分割
         call splitDataset(dataset, best_feature, best_threshold, left, right)
-
         ! このノードから見て左右のノードを再帰的に構築
         node => createNode(best_feature, best_threshold, -1)
         node%left => buildTree(left, depth + 1)
@@ -63,6 +64,35 @@ contains
         deallocate(right%data)
         deallocate(right%labels)
     end function buildTree
+
+    subroutine get_unique_labels(input_labels, output_labels)
+        integer, dimension(:), intent(in) :: input_labels
+        integer, dimension(255),  intent(out) :: output_labels
+        integer :: i, j, count
+        logical :: is_unique
+
+        count = 0
+
+        ! 一時的な配列にユニークなラベルを保存
+        do i = 1, size(input_labels)
+            if (count >= 255) then
+                exit
+            end if
+            is_unique = .true.
+            do j = 1, count
+                if (input_labels(i) == output_labels(j)) then
+                    is_unique = .false.
+                    exit
+                end if
+            end do
+            if (is_unique) then
+                count = count + 1
+                output_labels(count) = input_labels(i)
+            end if
+        end do
+
+
+    end subroutine get_unique_labels
 
     !> 決定木を使ってサンプルを予測する再帰関数
     ! @param[in] tree 決定木のノード

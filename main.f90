@@ -18,7 +18,6 @@ program main
     type(TreeNode), pointer :: tree                     ! 決定木のノードを格納する構造体を宣言
     real :: accuracy, start, finish , elapsed_time      ! 正解率を格納する変数  (realは浮動小数点数を表す)
     integer :: correct_predictions, i, prediction       ! 正解した予測の数を格納する変数, ループ用変数, 予測結果を格納する変数  (integerは整数を表す)
-
 ! メインプログラムの処理
     call cpu_time(start)    ! プログラムの実行時間を計測
     ! データセットの読み込み
