@@ -1,4 +1,3 @@
-! Fortranでは，Program, Module, Subroutine, Functionなどのプログラム構造がある
 program main
     ! モジュールの使用宣言
     use decision_tree_types
@@ -35,6 +34,17 @@ program main
     print *, "木の生成完了!"
     correct_predictions = 0
 
+    do i = 1, train_data%num_samples                         ! 1からテストデータのサンプル数までループ (%は構造体のメンバにアクセスする演算子)
+        prediction = predict(tree, train_data%data(i, :))    ! predictは決定木を用いた予測を行う関数
+        if (prediction == train_data%labels(i)) then
+            correct_predictions = correct_predictions + 1   ! 予測が正解していたら正解数を増やす
+        end if
+    end do
+
+    accuracy = real(correct_predictions) / train_data%num_samples    ! 正解率を計算
+    print *, "Train Accuracy: ", accuracy * 100, "%"
+
+    correct_predictions = 0
     do i = 1, test_data%num_samples                         ! 1からテストデータのサンプル数までループ (%は構造体のメンバにアクセスする演算子)
         prediction = predict(tree, test_data%data(i, :))    ! predictは決定木を用いた予測を行う関数
         if (prediction == test_data%labels(i)) then
@@ -43,7 +53,7 @@ program main
     end do
 
     accuracy = real(correct_predictions) / test_data%num_samples    ! 正解率を計算
-    print *, "Accuracy: ", accuracy * 100, "%"
+    print *, "test Accuracy: ", accuracy * 100, "%"
 
     ! メモリの解放
     call freeTree(tree)
