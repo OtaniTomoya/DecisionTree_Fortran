@@ -53,7 +53,6 @@ RUN echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bashrc
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "markdown-preview-enhanced.scrollSync": false
-    // "notebook.lineNumbers": "on"
     },
     "extensions": [
     "oderwat.indent-rainbow",
@@ -67,8 +66,6 @@ RUN echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bashrc
 ```Makefile
 FC = ifx
 FFLAGS = -fast -diag-disable=10448 -qopenmp -qmkl=parallel -Imodules
-#FC = gfortran
-#FFLAGS = -O1 -Wall -g
 
 TARGET = main
 MOD_DIR = modules
@@ -109,7 +106,6 @@ RUN mkdir -p /root/workspace
 WORKDIR /root/workspace
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and install Fortran compiler and basic dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -122,7 +118,6 @@ RUN apt-get update && \
     apt-get -y clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Clean up
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -143,7 +138,6 @@ RUN pip3 install numpy
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "markdown-preview-enhanced.scrollSync": false
-    // "notebook.lineNumbers": "on"
     },
     "extensions": [
     "oderwat.indent-rainbow",
@@ -158,49 +152,34 @@ RUN pip3 install numpy
 ```
 
 ```Makefile
-# コンパイラ
 FC = gfortran
 FFLAGS = -O3 -Wall -g -fbounds-check
 
-
-# ターゲット実行ファイル名
 TARGET = main
 
-# モジュールディレクトリ
 MOD_DIR = modules
 
-
-# ソースファイル
 MOD_SRC = $(MOD_DIR)/decision_tree_types.f90 $(MOD_DIR)/decision_tree_utils.f90 $(MOD_DIR)/decision_tree_split.f90 $(MOD_DIR)/decision_tree_metrics.f90 $(MOD_DIR)/decision_tree_build.f90 $(MOD_DIR)/decision_tree_io.f90
 MAIN_SRC = main.f90
 
-
-
-# オブジェクトファイル
 MOD_OBJ = $(MOD_SRC:.f90=.o)
 MAIN_OBJ = $(MAIN_SRC:.f90=.o)
 
-# ルール定義
 all: clean $(TARGET)
 
-# ターゲットファイルの生成
 $(TARGET): $(MOD_OBJ) $(MAIN_OBJ)
 	$(FC) $(FFLAGS) -o $@ $(MOD_OBJ) $(MAIN_OBJ)
 
-# モジュールファイルのコンパイル
 $(MOD_DIR)/%.o: $(MOD_DIR)/%.f90
 	$(FC) $(FFLAGS) -c $< -o $@
 
-# メインファイルのコンパイル
 main.o: main.f90 $(MOD_OBJ)
 	$(FC) $(FFLAGS) -c main.f90 -o main.o
 
-# クリーンアップ
 clean:
 	rm -f $(MOD_OBJ) $(MAIN_OBJ) $(TARGET)
 	rm -f $(MOD_DIR)/*.mod
 
-# 実行
 run: $(TARGET)
 	./$(TARGET)
 
