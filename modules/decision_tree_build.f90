@@ -24,7 +24,7 @@ contains
         call get_unique_labels(dataset%labels, unique_labels)
         parent_impurity = giniImpurity(dataset%labels, dataset%num_samples)
         do i = 1, NUM_FEATURES
-            do j = 0, 255
+            do j = 1, 255
                 if (unique_labels(j) == -1) then
                     exit
                 end if
