@@ -12,10 +12,4 @@ module decision_tree_types
         type(TreeNode), pointer :: left => null(), right => null()
     end type TreeNode
 
-    type :: data_set
-        integer, allocatable :: data(:,:)
-        integer, allocatable :: labels(:)
-        integer :: num_samples
-    end type data_set
-
 end module decision_tree_types
