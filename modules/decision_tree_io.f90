@@ -3,18 +3,17 @@ module decision_tree_io
     implicit none
 contains
 
-    subroutine readCSV(filename, datas, labels, data_samples)
+    subroutine readCSV(filename, datas, labels)
         implicit none
         character(len=*), intent(in) :: filename
         integer, allocatable, intent(out) :: datas(:,:)
         integer, allocatable, intent(out) :: labels(:)
-        integer, intent(out) :: data_samples
         integer :: i, j, ios, ncols, nrows, start, endpos
         character(len=8000) :: line
         integer :: unit = 10
         integer, allocatable :: data(:,:)
 
-        nrows = NUM_SAMPLES
+        nrows = DATASET_SIZE
         ncols = NUM_FEATURES + 1 ! ラベルを含める
         allocate(data(nrows, ncols))
 
@@ -38,7 +37,6 @@ contains
         datas = data(:, 1:ncols-1)
         allocate(labels(nrows))
         labels = data(:, ncols)
-        data_samples = nrows
     end subroutine readCSV
 
     subroutine trainTestSplit(dataset, labels, num_samples, &
