@@ -24,17 +24,19 @@ program main
     integer :: correct_predictions, i, prediction       ! 正解した予測の数を格納する変数, ループ用変数, 予測結果を格納する変数  (integerは整数を表す)
 ! メインプログラムの処理
     ! データセットの読み込み
-    print *, "csvの読み込み中..."
-    ! call readCSV("mnist.csv", dataset)
-    call readCSV("mnist.csv", dataset, labels)  ! callはサブルーチンを呼び出すときに使う datasetにcsvのデータが格納される
-    print *, "csvの読み込み完了!"
+    print *, "データの読み込み中..."
+    allocate(dataset(DATASET_SIZE, NUM_FEATURES))
+    allocate(labels(DATASET_SIZE))
+    open(20, file="dataset.dat", form="unformatted")
+    read(20) dataset, labels
+    close(20)
+    print *, "データの読み込み完了!"
 
     ! trainデータとtestデータの分割
     print *, "データの分割中..."
     call trainTestSplit(dataset, labels, DATASET_SIZE, &
             train_dataset, train_labels, train_samples, &
             test_dataset, test_labels, test_samples, 0.7)
-    !call trainTestSplit(dataset, train_data, test_data, 0.7)
     print *, "データの分割完了!"
     call cpu_time(start)
     ! 決定木の生成
