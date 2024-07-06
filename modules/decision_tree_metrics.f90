@@ -24,9 +24,7 @@ contains
     end function giniImpurity
 
     real function informationGain(dataset, labels, num_samples, feature, threshold, parent_impurity)
-        integer, allocatable, intent(in) :: dataset(:,:)
-        integer, allocatable, intent(in) :: labels(:)
-        integer, intent(in) :: num_samples, feature, threshold
+        integer, intent(in) :: dataset(num_samples,NUM_FEATURES), labels(num_samples), num_samples, feature, threshold
         real, intent(in) :: parent_impurity
         integer :: left(num_samples), right(num_samples), left_count, right_count
         real :: left_impurity, right_impurity, left_weight, right_weight
@@ -43,15 +41,13 @@ contains
     end function informationGain
 
     subroutine splitlabels(dataset, labels, num_samples, feature, threshold, left,left_count, right, right_count)
-        integer, allocatable, intent(in) :: dataset(:,:)
-        integer, allocatable, intent(in) :: labels(:)
+        integer, intent(in) :: dataset(num_samples,NUM_FEATURES), labels(num_samples)
         integer, intent(in) :: num_samples, feature, threshold
         integer, intent(out) :: left_count, right_count, left(num_samples), right(num_samples)
         integer :: i
 
         left_count = 0
         right_count = 0
-
         do i = 1, num_samples
             if (dataset(i, feature) < threshold) then
                 left_count = left_count + 1

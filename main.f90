@@ -13,7 +13,6 @@ program main
     ! このprogramで使用する変数の宣言
     integer, allocatable :: dataset(:,:)
     integer, allocatable :: labels(:)
-    integer :: dataset_size
     integer, allocatable :: train_dataset(:,:)
     integer, allocatable :: train_labels(:)
     integer :: train_samples
@@ -27,12 +26,12 @@ program main
     ! データセットの読み込み
     print *, "csvの読み込み中..."
     ! call readCSV("mnist.csv", dataset)
-    call readCSV("mnist.csv", dataset, labels, dataset_size)  ! callはサブルーチンを呼び出すときに使う datasetにcsvのデータが格納される
+    call readCSV("mnist.csv", dataset, labels)  ! callはサブルーチンを呼び出すときに使う datasetにcsvのデータが格納される
     print *, "csvの読み込み完了!"
 
     ! trainデータとtestデータの分割
     print *, "データの分割中..."
-    call trainTestSplit(dataset, labels, dataset_size, &
+    call trainTestSplit(dataset, labels, DATASET_SIZE, &
             train_dataset, train_labels, train_samples, &
             test_dataset, test_labels, test_samples, 0.7)
     !call trainTestSplit(dataset, train_data, test_data, 0.7)
@@ -40,7 +39,7 @@ program main
     call cpu_time(start)
     ! 決定木の生成
     print *, "木の生成中..."
-    tree => buildTree(train_dataset, train_labels,train_samples, 0)    !buildTreeは関数
+    tree => buildTree(train_dataset, train_labels, train_samples, 0)    !buildTreeは関数
     print *, "木の生成完了!"
     correct_predictions = 0
 
